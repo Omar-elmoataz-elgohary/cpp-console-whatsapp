@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include <algorithm>
 using namespace std;
 
 // ========================
@@ -142,34 +143,67 @@ protected:
     string chatName;
     
 public:
+    // Default constructor: Initializes an empty chat with a placeholder name.
     Chat() {
-        // TODO: Implement default constructor
+        chatName = "Unknown Chat";
     }
     
+    // Parameterized constructor: Sets up the chat with a specific list of users and a name.
     Chat(vector<string> users, string name) {
-        // TODO: Implement parameterized constructor
+        participants = users;
+        chatName = name;
     }
     
+    // Helper method: Checks if a specific user is part of this chat.
+    // std::find searches the participants vector from beginning to end.
+    bool hasParticipant(const string& username) const {
+        return std::find(participants.begin(), participants.end(), username) != participants.end();
+    }
+
+// Adds a new Message object to the end of the messages vector.
     void addMessage(const Message& msg) {
-        // TODO: Implement message addition
+        messages.push_back(msg);
     }
     
     bool deleteMessage(int index, const string& username) {
-        // TODO: Implement message deletion
-        return false;
+        if (index >= 0 && index < messages.size()) {
+            if (messages[index].getSender() == username) {
+                messages.erase(messages.begin() + index);
+                return true; 
+            }
+        }
+        return false; 
     }
     
     virtual void displayChat() const {
-        // TODO: Implement chat display
+        cout << "\n=== " << chatName << " ===" << endl;
+        if (messages.empty()) {
+            cout << "No messages in this chat yet." << endl;
+            return;
+        }
+        // Loop through the vector and call the display() method on each Message object.
+        for (size_t i = 0; i < messages.size(); i++) {
+            cout << "[" << i << "] ";
+            messages[i].display(); 
+        }
     }
     
+    // Searches for a specific keyword within all messages in the chat.
     vector<Message> searchMessages(string keyword) const {
-        // TODO: Implement message search
-        return {};
+        vector<Message> foundMessages;
+        
+        for (const auto& msg : messages) {
+            // string::find returns string::npos if the substring is not found.
+            if (msg.getContent().find(keyword) != string::npos) {
+                foundMessages.push_back(msg);
+            }
+        }
+        return foundMessages;
     }
     
+    // Export functionality is blocked per the SRS constraints (all data must stay in memory).
     void exportToFile(const string& filename) const {
-        // TODO: Implement export to file
+        cout << "File export disabled: System runs in memory-only mode." << endl;
     }
 };
 
@@ -182,16 +216,25 @@ private:
     string user2;
     
 public:
-    PrivateChat(string u1, string u2) {
-        // TODO: Implement constructor
+    // Constructor uses an initialization list ( : Chat(...) ) to pass arguments 
+    // directly up to the base Chat class constructor before doing anything else.
+    PrivateChat(string u1, string u2) : Chat({u1, u2}, "Chat between " + u1 + " and " + u2) {
+        user1 = u1;
+        user2 = u2;
     }
-    
+
+    // Overrides the base class displayChat method. 
+    // Currently, it just calls the base version, but it's set up here in case
     void displayChat() const override {
-        // TODO: Implement private chat display
+        Chat::displayChat();
     }
     
+    // Simulates a typing indicator, a feature specific to one-on-one chats.
     void showTypingIndicator(const string& username) const {
-        // TODO: Implement typing indicator
+        // Safety check: Ensure the user typing is actually one of the two participants.
+        if (username == user1 || username == user2) {
+            cout << "\n[" << username << " is typing...]" << endl;
+        }
     }
 };
 
