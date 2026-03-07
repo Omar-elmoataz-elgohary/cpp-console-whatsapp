@@ -230,7 +230,7 @@ public:
     // checks if the admin and member are in the group
     // may have a run time problem due to multiple for loops needs to check if helper functions (is admin , is participant) is used else where before modifing
     // admin removing admin not mentioned so it wont work here
-    // when true writes the member as 0 becuase the delete function have time problems
+    // when true writes the member as 0 becuase the delete function have time problems.
 
     bool removeParticipant(const string& admin, const string& userToRemove) {
 
